@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Checklist } from "@/api/entities";
+import { Checklist } from "@/api/localStorageChecklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,17 +81,25 @@ export default function Checklists() {
   }, []);
 
   useEffect(() => {
+    // Load custom categories from storage on mount
+    const loadCustomCategories = async () => {
+      const stored = await Checklist.getCustomCategories();
+      setCustomCategories(stored);
+    };
+    loadCustomCategories();
+  }, []);
+
+  useEffect(() => {
     const allChecklistCategories = [...new Set(checklists.map(item => item.category))];
-    const newCustomCategories = allChecklistCategories.filter(cat => !defaultCategoryConfig[cat]);
-    setCustomCategories(newCustomCategories);
-    
-    const currentAllCategories = [...Object.keys(defaultCategoryConfig), ...newCustomCategories];
+    const allCustomCategories = [...new Set([...customCategories, ...allChecklistCategories.filter(cat => !defaultCategoryConfig[cat])])];
+
+    const currentAllCategories = [...Object.keys(defaultCategoryConfig), ...allCustomCategories];
     if (!currentAllCategories.includes(activeCategory) && currentAllCategories.length > 0) {
       setActiveCategory(currentAllCategories[0]);
     } else if (currentAllCategories.length === 0) {
       setActiveCategory("");
     }
-  }, [checklists, activeCategory]);
+  }, [checklists, activeCategory, customCategories]);
 
   const loadChecklists = async () => {
     const data = await Checklist.list();
@@ -141,14 +149,14 @@ export default function Checklists() {
       alert("Please enter a category name");
       return;
     }
-    
-    const categoryKey = trimmedName.toLowerCase().replace(/\s+/g, '_');
-    
+
+    const categoryKey = await Checklist.addCustomCategory(trimmedName);
+
     if (getAllCategories().includes(categoryKey)) {
-      alert("Category already exists!");
-      return;
+      // Category was just added, update state
+      setCustomCategories(prev => [...prev, categoryKey]);
     }
-    
+
     setActiveCategory(categoryKey);
     setNewItem({ ...newItem, category: categoryKey });
     setShowAddCategory(false);
