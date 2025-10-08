@@ -135,17 +135,12 @@ export default function CableSystem() {
     if (current === 0) return "text-gray-400";
 
     const ratio = wireCapacity / current;
-    
-    if (ratio >= 1.25) {
-      return "text-green-400 font-bold";
-    } else if (ratio >= 1.20) {
-      return "text-green-300 font-semibold";
-    } else if (ratio >= 1.15) {
-      return "text-lime-400 font-semibold";
-    } else if (ratio >= 1.10) {
-      return "text-yellow-400 font-semibold";
+
+    // Simplified color scheme: Green (sufficient), Yellow (marginal), Red (insufficient)
+    if (ratio >= 1.15) {
+      return "text-green-400 font-semibold";
     } else if (ratio >= 1.05) {
-      return "text-orange-400 font-semibold";
+      return "text-yellow-400 font-semibold";
     } else {
       return "text-red-400 font-bold";
     }
@@ -204,7 +199,7 @@ export default function CableSystem() {
                 </div>
 
                 <div>
-                  <Label htmlFor="length" className="text-gray-200">Cable Length</Label>
+                  <Label htmlFor="length" className="text-gray-200">Cable Length (One-Way Only)</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       id="length"
@@ -223,7 +218,12 @@ export default function CableSystem() {
                       <option value="feet">ft</option>
                     </select>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">One-way distance from power source to device</p>
+                  <Alert className="mt-2 border-orange-500/30 bg-orange-500/10">
+                    <Info className="h-4 w-4 text-orange-400" />
+                    <AlertDescription className="text-orange-200 text-xs">
+                      <strong>Important:</strong> Enter the one-way distance only, not the total cable run. The calculator automatically accounts for both positive and negative cables.
+                    </AlertDescription>
+                  </Alert>
                 </div>
 
                 <div>
@@ -241,12 +241,12 @@ export default function CableSystem() {
               </CardContent>
             </Card>
 
-            {/* System Recommendations */}
+            {/* System Calculations */}
             <Card className="cyber-card border-cyan-500/30">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-white">
                   <CheckCircle className="w-5 h-5 text-green-400" />
-                  2. Recommendation
+                  2. Calculated Results
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -255,8 +255,12 @@ export default function CableSystem() {
                     <Alert className="border-green-500/40 bg-green-500/10">
                       <CheckCircle className="h-4 w-4 text-green-400" />
                       <AlertDescription className="text-green-200 text-xs md:text-sm">
-                        Your device draws <strong>{results.current}A</strong>. 
-                        Recommended wire keeps voltage drop ≤ 3% and allows proper fuse protection.
+                        Your device draws <strong>{results.current}A</strong>.
+                        Calculated wire option keeps voltage drop ≤ 3% and allows proper fuse protection.
+                        <span className="block mt-2 text-xs">
+                          Note: Smaller cables may be rated to sufficiently carry the current, but do not meet the voltage drop requirement of less than 3%.
+                          See the table below showing cable sizes, rated capacity, and voltage drop to make an informed choice.
+                        </span>
                       </AlertDescription>
                     </Alert>
 
@@ -301,7 +305,7 @@ export default function CableSystem() {
                 ) : (
                   <div className="text-center py-8 text-gray-400">
                     <Shield className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                    <p className="text-sm md:text-base">Enter parameters to see recommendation</p>
+                    <p className="text-sm md:text-base">Enter parameters to see calculated results</p>
                   </div>
                 )}
               </CardContent>
@@ -365,45 +369,37 @@ export default function CableSystem() {
                   
                   {/* Color Legend */}
                   <div className="mt-6 p-4 bg-gray-900/50 rounded-xl border border-cyan-500/20">
-                    <h4 className="text-sm font-bold text-white mb-3">Color Guide:</h4>
-                    
+                    <h4 className="text-sm font-bold text-white mb-3">Table Guide:</h4>
+
                     <div className="space-y-3">
                       <div>
-                        <p className="text-xs font-semibold text-gray-300 mb-2">Capacity (relative to {results.current}A load):</p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                        <p className="text-xs font-semibold text-gray-300 mb-2">Cable Capacity Colors:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-green-400 rounded border border-green-500"></div>
-                            <span className="text-gray-200">≥125% (Excellent)</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 bg-lime-400 rounded border border-lime-500"></div>
-                            <span className="text-gray-200">115-120% (Good)</span>
+                            <span className="text-gray-200">Green = Sufficient capacity</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-yellow-400 rounded border border-yellow-500"></div>
-                            <span className="text-gray-200">110-115% (Adequate)</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 bg-orange-400 rounded border border-orange-500"></div>
-                            <span className="text-gray-200">105-110% (Marginal)</span>
+                            <span className="text-gray-200">Yellow = Marginal capacity</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-red-400 rounded border border-red-500"></div>
-                            <span className="text-gray-200">&lt;105% (Insufficient)</span>
+                            <span className="text-gray-200">Red = Insufficient capacity</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="pt-2 border-t border-cyan-500/20">
-                        <p className="text-xs font-semibold text-gray-300 mb-2">Voltage Drop:</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                        <p className="text-xs font-semibold text-gray-300 mb-2">Voltage Drop Colors:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-white rounded border border-gray-300"></div>
                             <span className="text-gray-200">White = ≤3% (Acceptable)</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-red-400 rounded border border-red-500"></div>
-                            <span className="text-gray-200">Red = &gt;3% (Excessive)</span>
+                            <span className="text-gray-200">Red = &gt;3% (Too high)</span>
                           </div>
                         </div>
                       </div>
@@ -411,7 +407,7 @@ export default function CableSystem() {
                       <div className="pt-2 border-t border-cyan-500/20">
                         <div className="flex items-center gap-2 text-xs">
                           <span className="text-cyan-400 font-bold text-lg">★</span>
-                          <span className="text-gray-200">Recommended: Smallest mm² that meets all requirements</span>
+                          <span className="text-gray-200">Calculated Option: Smallest cable that meets capacity and voltage drop requirements</span>
                         </div>
                       </div>
                     </div>
@@ -419,26 +415,37 @@ export default function CableSystem() {
 
                   {results.recommendedWire && (
                     <div className="mt-4 p-4 bg-blue-500/10 rounded-xl border border-blue-500/30">
-                      <h4 className="text-sm font-bold text-blue-300 mb-2">★ Why This Recommendation?</h4>
+                      <h4 className="text-sm font-bold text-blue-300 mb-2">★ Calculation Breakdown</h4>
                       <div className="space-y-2 text-xs md:text-sm text-blue-200">
                         <p>
-                          <strong>Load:</strong> Your device draws {results.current}A continuously.
+                          <strong>Load:</strong> Device draws {results.current}A continuously
                         </p>
                         <p>
-                          <strong>Fuse Requirements:</strong> The fuse must be at least {results.minFuseRating}A (125% of {results.current}A) to handle normal operation without nuisance tripping. The fuse must also be no more than 80% of the cable's capacity to protect the cable from overcurrent damage.
+                          <strong>Fuse Requirements:</strong>
                         </p>
+                        <ul className="ml-6 space-y-1 list-disc text-xs">
+                          <li>Must be rated for at least 125% of load = {results.minFuseRating}A minimum</li>
+                          <li>Must be less than 80% of cable's rated current to protect the cable</li>
+                        </ul>
                         <p>
-                          <strong>Cable Selected:</strong> {results.recommendedWire.awg} AWG ({results.recommendedWire.mm2} mm²) has a capacity of {results.recommendedWire.capacity}A, which allows a maximum fuse of {results.recommendedWire.maxFuseAllowed}A (80% rule).
+                          <strong>Cable Option:</strong> {results.recommendedWire.awg} AWG ({results.recommendedWire.mm2} mm²)
                         </p>
+                        <ul className="ml-6 space-y-1 list-disc text-xs">
+                          <li>Rated capacity: {results.recommendedWire.capacity}A (meets 125% requirement)</li>
+                          <li>Maximum fuse allowed: {results.recommendedWire.maxFuseAllowed}A (80% of capacity)</li>
+                        </ul>
                         <p>
-                          <strong>Fuse Selected:</strong> {results.recommendedWire.recommendedFuse}A is the smallest standard fuse that meets both requirements: ≥ {results.minFuseRating}A (load protection) and ≤ {results.recommendedWire.maxFuseAllowed}A (cable protection).
+                          <strong>Fuse Selected:</strong> {results.recommendedWire.recommendedFuse}A
                         </p>
+                        <ul className="ml-6 space-y-1 list-disc text-xs">
+                          <li>Next standard automotive fuse size that meets both requirements</li>
+                        </ul>
                         <p>
-                          <strong>Voltage Drop:</strong> At {results.lengthDisplay} {results.lengthUnit === "meters" ? "meters" : "feet"} ({results.lengthInMeters} meters), this cable has only {results.recommendedWire.voltageDropPercent}% voltage drop, well within the 3% maximum for efficient operation.
+                          <strong>Voltage Drop:</strong> {results.recommendedWire.voltageDropPercent}% at {results.lengthDisplay}{results.lengthUnit === "meters" ? "m" : "ft"}
                         </p>
-                        <p className="pt-2 border-t border-blue-500/30 mt-2">
-                          <strong>Result:</strong> This is the smallest (thinnest) cable by cross-sectional area (mm²) that safely meets all requirements.
-                        </p>
+                        <ul className="ml-6 space-y-1 list-disc text-xs">
+                          <li>Within the 3% commonly recommended in the automotive industry</li>
+                        </ul>
                       </div>
                     </div>
                   )}
@@ -466,14 +473,17 @@ export default function CableSystem() {
                   <h3 className="text-lg font-bold text-blue-300 mb-3">1. Cable Sizing</h3>
                   <div className="space-y-2 text-sm text-blue-200">
                     <p>
-                      <strong>Safety Factor:</strong> Cables must be sized to handle 125% of the continuous current draw (150% for motor loads). This provides a safety margin for sustained operation and prevents cable overheating.
+                      <strong>Current Capacity:</strong> Cables must be rated to handle at least 125% of the continuous current draw (150% for motor loads). This provides a safety margin for sustained operation and prevents cable overheating.
                     </p>
                     <p>
-                      <strong>Voltage Drop:</strong> Total voltage drop should not exceed 3% of system voltage. Excessive voltage drop reduces equipment efficiency and can cause damage to sensitive electronics.
+                      <strong>Voltage Drop:</strong> It is commonly recommended in the automotive industry to keep voltage drop on circuits less than 3% of system voltage. On low voltage circuits (12V/24V), this often requires cables to be much larger than expected based on current capacity alone.
                     </p>
                     <p className="text-xs text-blue-300 italic mt-2">
                       • For 12V systems: Maximum 0.36V drop (0.36V = 3% of 12V)<br/>
                       • For 24V systems: Maximum 0.72V drop (0.72V = 3% of 24V)
+                    </p>
+                    <p className="text-xs text-orange-200 mt-3 p-2 bg-orange-500/10 rounded border border-orange-500/30">
+                      <strong>Note:</strong> In some instances, meeting the 3% voltage drop requirement would require cables so large they are not compatible with some popular devices on the market. Use this calculator as a guide - it calculates results that meet both capacity and voltage drop requirements, but cable sizing compatibility is at the user's discretion.
                     </p>
                   </div>
                 </div>
@@ -482,18 +492,18 @@ export default function CableSystem() {
                   <h3 className="text-lg font-bold text-green-300 mb-3">2. Fuse Sizing</h3>
                   <div className="space-y-2 text-sm text-green-200">
                     <p>
-                      <strong>Protection Rule:</strong> Fuses must be rated at 80% or less of the cable's current capacity to protect the cable from overcurrent conditions.
-                    </p>
-                    <p>
-                      <strong>Example:</strong> If a cable is rated for 100A continuous, the maximum fuse size should be 80A (100A × 0.80 = 80A).
-                    </p>
-                    <p>
-                      <strong>Selection:</strong> Choose the nearest standard fuse size that:
+                      <strong>Dual Requirements:</strong> Fuses must protect both the cable and allow the device to operate properly:
                     </p>
                     <ul className="ml-6 space-y-1 list-disc">
-                      <li>Is equal to or greater than 125% of the load current (to handle the actual load)</li>
-                      <li>Does not exceed 80% of the cable's rated capacity (to protect the cable)</li>
+                      <li>Must be rated for at least 125% of the load current (prevents nuisance tripping)</li>
+                      <li>Must be no more than 80% of the cable's rated capacity (protects cable from overcurrent damage)</li>
                     </ul>
+                    <p>
+                      <strong>Selection:</strong> Choose the next standard automotive fuse size that satisfies both requirements above.
+                    </p>
+                    <p className="text-xs text-green-300 italic mt-2">
+                      Example: For a 40A load on a 60A cable - Fuse must be ≥50A (125% of load) and ≤48A (80% of cable). No standard fuse fits, so a larger cable is required.
+                    </p>
                   </div>
                 </div>
 
@@ -502,12 +512,12 @@ export default function CableSystem() {
                   <div className="space-y-2 text-sm text-purple-200">
                     <p>For a 12V device drawing 80A continuous over 5 meters:</p>
                     <ul className="ml-6 space-y-1">
-                      <li><strong>Load with safety margin:</strong> 80A × 1.25 = 100A minimum fuse requirement</li>
-                      <li><strong>Cable requirement:</strong> To use a 100A fuse safely, cable capacity must be ≥ 100A ÷ 0.80 = 125A</li>
+                      <li><strong>Load with margin:</strong> 80A × 1.25 = 100A minimum fuse requirement</li>
+                      <li><strong>Cable requirement:</strong> To use a 100A fuse, cable capacity must be ≥ 100A ÷ 0.80 = 125A</li>
                       <li><strong>Cable selected:</strong> 1 AWG (130A capacity, meets 125A requirement)</li>
                       <li><strong>Maximum fuse for 1 AWG:</strong> 130A × 0.80 = 104A</li>
                       <li><strong>Fuse selected:</strong> 100A (meets load requirement of ≥100A, within cable protection limit of ≤104A)</li>
-                      <li><strong>Voltage drop check:</strong> 2.48% at 5 meters - well within 3% limit ✓</li>
+                      <li><strong>Voltage drop check:</strong> 2.48% at 5 meters - within 3% limit ✓</li>
                     </ul>
                   </div>
                 </div>
@@ -596,13 +606,17 @@ export default function CableSystem() {
               <div className="p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-yellow-400 mt-1 flex-shrink-0" />
-                  <div className="text-yellow-200">
-                    <p className="text-sm leading-relaxed">
-                      This calculator uses voltage drop values from BS 7671:2018+A2:2022 (UK Wiring Regulations) for single-core copper conductors at 18°C ambient temperature, combined with manufacturer-claimed current ratings from 12V Planet. 
-                      For installations requiring BS 7671 compliance, current-carrying capacities must be verified against BS 7671 tables (4D1A, 4D5) considering installation method, grouping, and thermal insulation. 
-                      The manufacturer ratings shown may exceed BS 7671 values and are provided for comparison only. 
-                      Installation conditions, ambient temperature, cable bundling, insulation type, derating factors, and local regulations significantly affect proper cable and fuse sizing. 
-                      Always consult with a qualified electrician or electrical engineer for safety-critical installations and Building Regulations compliance. 
+                  <div className="text-yellow-200 text-sm leading-relaxed space-y-3">
+                    <p>
+                      This calculator provides guidance only and calculates results that meet both capacity and voltage drop requirements. It is the user's responsibility to ensure that cable sizing is appropriate and compatible with their specific devices and installation.
+                    </p>
+                    <p>
+                      This calculator uses voltage drop values from BS 7671:2018+A2:2022 (UK Wiring Regulations) and current ratings compiled from UK cable suppliers and manufacturers. Regulations and reference materials change regularly, so information within this tool may no longer be accurate.
+                    </p>
+                    <p>
+                      Multiple variables impact proper cable sizing including: installation method, ambient temperature, cable bundling, grouping, insulation type, thermal insulation, derating factors, device compatibility, cable route, and ventilation. Users must verify all variables for their specific installation and make their own informed decisions. Always refer to current regulations in your country to verify compliance and consult with a qualified electrician or electrical engineer for safety-critical installations.
+                    </p>
+                    <p className="font-semibold">
                       The author assumes no liability for damages or injuries resulting from use of this tool.
                     </p>
                   </div>

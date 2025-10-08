@@ -208,8 +208,8 @@ export default function CableConverter() {
                   <tr className="border-b-2 border-cyan-500/30">
                     <th className="text-left py-3 px-2 font-bold text-cyan-300">mm²</th>
                     <th className="text-left py-3 px-2 font-bold text-cyan-300">AWG</th>
-                    <th className="text-left py-3 px-2 font-bold text-cyan-300">Victron</th>
-                    <th className="text-left py-3 px-2 font-bold text-cyan-300">Mfr.</th>
+                    <th className="text-left py-3 px-2 font-bold text-cyan-300">Device Mfr</th>
+                    <th className="text-left py-3 px-2 font-bold text-cyan-300">Cable Mfr</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -227,7 +227,7 @@ export default function CableConverter() {
               </table>
             </div>
             <p className="text-xs text-gray-400 mt-4 italic">
-              Mfr. = Manufacturer current claims from cable suppliers
+              Device Mfr = Device manufacturer recommendations, Cable Mfr = Cable manufacturer current claims
             </p>
           </CardContent>
         </Card>
@@ -243,8 +243,8 @@ export default function CableConverter() {
           <CardContent className="space-y-4">
             <div className="text-sm text-gray-300 space-y-2">
               <p>• AWG sizes mapped to nearest standard metric mm² equivalents (IEC 60228)</p>
-              <p>• Victron ratings: Victron Energy cable sizing guidelines</p>
-              <p>• Manufacturer claims: 12voltplanet.co.uk cable specifications</p>
+              <p>• Device Mfr: References taken from the websites and installation guides of some of the leading Campervan electrical accessory manufacturers</p>
+              <p>• Cable Mfr: References taken from various UK cable manufacturer and distributor websites</p>
               <p>• All ratings assume 30°C ambient temperature</p>
             </div>
             
@@ -253,10 +253,13 @@ export default function CableConverter() {
                 <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-orange-200 leading-relaxed">
                   <strong className="block mb-1">Important:</strong>
-                  AWG and mm² are different measurement systems. AWG measures wire diameter while mm² measures cross-sectional area.
-                  The mm² values shown are standard metric cable sizes (nearest equivalent). This data was accurate at the time of publication, 
-                  but specifications and standards may have changed since. This tool is provided as a general guide only. Always verify cable 
-                  specifications directly with the supplier of the cable you have purchased and consult the manufacturer's datasheets for your specific application.
+                  <p className="mb-3">
+                    AWG and mm² are different measurement systems. AWG measures wire diameter while mm² measures cross-sectional area.
+                    The mm² values shown are standard metric cable sizes (nearest equivalent).
+                  </p>
+                  <p>
+                    This tool provides guidance estimates only. Values are compiled from various sources that may have changed since publication and should not be considered factual or definitive. Always verify cable specifications directly with your supplier and consult the manufacturer's current datasheets before installation. For safety-critical applications, consult a qualified professional.
+                  </p>
                 </div>
               </div>
             </div>

@@ -152,10 +152,8 @@ export default function Checklists() {
 
     const categoryKey = await Checklist.addCustomCategory(trimmedName);
 
-    if (getAllCategories().includes(categoryKey)) {
-      // Category was just added, update state
-      setCustomCategories(prev => [...prev, categoryKey]);
-    }
+    // Update state with the new category
+    setCustomCategories(prev => [...prev, categoryKey]);
 
     setActiveCategory(categoryKey);
     setNewItem({ ...newItem, category: categoryKey });
@@ -233,56 +231,6 @@ export default function Checklists() {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {getAllCategories().map((category) => {
-            const stats = getCompletionStats(category);
-            const config = getCategoryConfig(category);
-            const IconComponent = config.icon;
-            const isCustom = isCustomCategory(category);
-            
-            return (
-              <div key={category} className="relative group">
-                <button
-                  onClick={() => setActiveCategory(category)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    activeCategory === category 
-                      ? `${config.bgColor} ${config.textColor} ${config.borderColor} border-2 shadow-md` 
-                      : 'bg-gray-900/50 text-gray-300 border-2 border-cyan-500/30 hover:bg-gray-800/50'
-                  }`}
-                >
-                  <IconComponent className="w-5 h-5" />
-                  <span className="font-medium capitalize">{category.replace(/_/g, ' ')}</span>
-                  <Badge variant="secondary" className="ml-1 bg-gray-800 text-white border-gray-700">
-                    {stats.completed}/{stats.total}
-                  </Badge>
-                </button>
-                
-                {isCustom && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteCategory(category);
-                    }}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                    title={`Delete ${category.replace(/_/g, ' ')} category`}
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                )}
-              </div>
-            );
-          })}
-          
-          <Button
-            onClick={() => setShowAddCategory(true)}
-            variant="outline"
-            className="px-4 py-3 rounded-xl border-2 border-green-500/50 bg-green-500/10 text-green-300 hover:bg-green-500/20"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Category
-          </Button>
-        </div>
-
         {showAddCategory && (
           <Card className="cyber-card border-green-500/40 mb-6">
             <CardContent className="p-4">
@@ -309,42 +257,73 @@ export default function Checklists() {
         )}
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          {getAllCategories().slice(0, 8).map((category) => {
+          {getAllCategories().map((category) => {
             const stats = getCompletionStats(category);
             const config = getCategoryConfig(category);
             const IconComponent = config.icon;
-            
+            const isCustom = isCustomCategory(category);
+
             return (
-              <Card 
-                key={category}
-                className={`cyber-card border-cyan-500/30 cursor-pointer transition-all duration-200 ${
-                  activeCategory === category ? 'ring-2 ring-cyan-400 scale-105' : 'hover:scale-102'
-                }`}
-                onClick={() => setActiveCategory(category)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className={`w-10 h-10 bg-gradient-to-r ${config.color} rounded-xl flex items-center justify-center`}>
-                      <IconComponent className="w-5 h-5 text-white" />
+              <div key={category} className="relative group">
+                <Card
+                  className={`cyber-card border-cyan-500/30 cursor-pointer transition-all duration-200 ${
+                    activeCategory === category ? 'ring-2 ring-cyan-400 scale-105' : 'hover:scale-102'
+                  }`}
+                  onClick={() => setActiveCategory(category)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className={`w-10 h-10 bg-gradient-to-r ${config.color} rounded-xl flex items-center justify-center`}>
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white">{stats.percentage}%</div>
+                        <div className="text-xs text-gray-400">{stats.completed}/{stats.total}</div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-white">{stats.percentage}%</div>
-                      <div className="text-xs text-gray-400">{stats.completed}/{stats.total}</div>
+                    <CardTitle className="capitalize text-lg text-white">{category.replace(/_/g, ' ')}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="w-full bg-gray-800 rounded-full h-2">
+                      <div
+                        className={`bg-gradient-to-r ${config.color} h-2 rounded-full transition-all duration-500`}
+                        style={{ width: `${stats.percentage}%` }}
+                      ></div>
                     </div>
-                  </div>
-                  <CardTitle className="capitalize text-lg text-white">{category.replace(/_/g, ' ')}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="w-full bg-gray-800 rounded-full h-2">
-                    <div 
-                      className={`bg-gradient-to-r ${config.color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${stats.percentage}%` }}
-                    ></div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                {isCustom && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteCategory(category);
+                    }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                    title={`Delete ${category.replace(/_/g, ' ')} category`}
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                )}
+              </div>
             );
           })}
+
+          <Card
+            className="cyber-card border-green-500/50 bg-green-500/10 cursor-pointer transition-all duration-200 hover:scale-102 hover:border-green-500"
+            onClick={() => setShowAddCategory(true)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-center h-full min-h-[120px]">
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <CardTitle className="text-lg text-green-300">Add Category</CardTitle>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
         </div>
 
         <div className="grid lg:grid-cols-4 gap-8">

@@ -16,7 +16,9 @@ import CableSystem from "./CableSystem";
 
 import WattsTriangle from "./WattsTriangle";
 
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { App } from '@capacitor/app';
 
 const PAGES = {
     
@@ -54,31 +56,48 @@ function _getCurrentPage(url) {
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
     const location = useLocation();
+    const navigate = useNavigate();
     const currentPage = _getCurrentPage(location.pathname);
-    
+
+    useEffect(() => {
+        const handleBackButton = App.addListener('backButton', () => {
+            // If we're on the homepage, exit the app
+            if (location.pathname === '/' || location.pathname === '/Dashboard') {
+                App.exitApp();
+            } else {
+                // Otherwise, navigate back
+                navigate(-1);
+            }
+        });
+
+        return () => {
+            handleBackButton.remove();
+        };
+    }, [location.pathname, navigate]);
+
     return (
         <Layout currentPageName={currentPage}>
-            <Routes>            
-                
+            <Routes>
+
                     <Route path="/" element={<Dashboard />} />
-                
-                
+
+
                 <Route path="/Dashboard" element={<Dashboard />} />
-                
+
                 <Route path="/CableConverter" element={<CableConverter />} />
-                
+
                 <Route path="/OhmsLaw" element={<OhmsLaw />} />
-                
+
                 <Route path="/SolarBattery" element={<SolarBattery />} />
-                
+
                 <Route path="/Resources" element={<Resources />} />
-                
+
                 <Route path="/Checklists" element={<Checklists />} />
-                
+
                 <Route path="/CableSystem" element={<CableSystem />} />
-                
+
                 <Route path="/WattsTriangle" element={<WattsTriangle />} />
-                
+
             </Routes>
         </Layout>
     );

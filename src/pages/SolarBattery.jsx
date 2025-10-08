@@ -9,28 +9,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const batteryChemistries = {
-  lithium: { 
-    name: "Lithium (LiFePO4)", 
-    dod: 0.80, 
-    description: "80% recommended DoD for longevity - can go to 100% but reduces cycle life",
+  lithium: {
+    name: "Lithium (LiFePO4)",
+    dod: 0.80,
+    description: "80% DoD recommended for maximum longevity. Modern LiFePO4 batteries with BMS can handle 100% DoD, but limiting to 80% significantly extends cycle life - ideal for long-term vanlife installations.",
     source: "Battle Born, Renogy, Victron recommendations"
   },
-  agm: { 
-    name: "AGM (Absorbed Glass Mat)", 
-    dod: 0.50, 
-    description: "50% maximum DoD - deeper discharge significantly shortens lifespan",
+  agm: {
+    name: "AGM (Absorbed Glass Mat)",
+    dod: 0.50,
+    description: "50% DoD maximum for optimal lifespan. Sealed, maintenance-free design. Deeper discharge rapidly degrades performance and reduces cycle count. Well-suited for moderate power needs.",
     source: "Victron Energy, Varta, REDARC guidelines"
   },
-  leadacid: { 
-    name: "Flooded Lead Acid", 
-    dod: 0.50, 
-    description: "50% maximum DoD - traditional technology, requires regular maintenance",
+  leadacid: {
+    name: "Flooded Lead Acid",
+    dod: 0.50,
+    description: "50% DoD maximum recommended. Traditional, cost-effective technology. Requires regular maintenance (water top-ups, ventilation). Best for stationary or budget-conscious installations.",
     source: "Trojan Battery, Crown Battery specifications"
   },
-  gel: { 
-    name: "Gel Cell", 
-    dod: 0.50, 
-    description: "50% maximum DoD - better deep discharge tolerance than AGM but still limited",
+  gel: {
+    name: "Gel Cell",
+    dod: 0.50,
+    description: "50% DoD maximum for longevity. Sealed and maintenance-free with better deep discharge tolerance than AGM. More resistant to temperature extremes but sensitive to charging voltages.",
     source: "Victron Energy, Sonnenschein guidelines"
   }
 };
@@ -123,8 +123,8 @@ export default function SolarBattery() {
     // Minimum battery: 6 hours standalone autonomy (0.25 days)
     const minimumBatteryAh = (dailyAmpHours * 0.25) / dod;
     
-    // Solar sizing for exactly 7 days total autonomy
-    const targetDays = 7;
+    // Solar sizing for exactly 5 days total autonomy
+    const targetDays = 5;
     let solarWatts = 0;
     if (sunHoursDaily > 0) {
       // The battery provides 'batteryDays' worth of energy. Solar needs to cover the rest to reach 'targetDays'.
@@ -158,7 +158,7 @@ export default function SolarBattery() {
   const getAdjustedSystem = () => {
     if (!results) return null;
 
-    const targetContinuousAutonomyDays = 7;
+    const targetContinuousAutonomyDays = 5;
     const voltage = parseFloat(systemVoltage);
     const sunHoursDaily = parseFloat(sunHours);
     const dod = batteryChemistries[batteryChemistry].dod;
@@ -175,15 +175,15 @@ export default function SolarBattery() {
 
     // Recalculate the other component if one is custom set
     if (customBatteryAh !== null) {
-        // User adjusted battery, calculate required solar to meet 7-day goal
+        // User adjusted battery, calculate required solar to meet 5-day goal
         const usableBatteryWh = effectiveBatteryAh * dod * voltage;
         let dailySolarGenerationNeededWh;
 
-        // If battery alone can cover the 7-day target (or more)
+        // If battery alone can cover the 5-day target (or more)
         if (usableBatteryWh >= dailyWattHoursWithMargin * targetContinuousAutonomyDays) {
             dailySolarGenerationNeededWh = 0; // No solar needed for autonomy goal
         } else {
-            // Solar needs to cover the remainder for 7 days
+            // Solar needs to cover the remainder for 5 days
             // dailySolarGenerationWh = dailyLoadWh - (usableBatteryWh / targetDays)
             dailySolarGenerationNeededWh = dailyWattHoursWithMargin - (usableBatteryWh / targetContinuousAutonomyDays);
         }
@@ -196,7 +196,7 @@ export default function SolarBattery() {
         }
 
     } else if (customSolarWatts !== null) {
-        // User adjusted solar, calculate required battery to meet 7-day goal
+        // User adjusted solar, calculate required battery to meet 5-day goal
         const dailySolarGenerationWh = effectiveSolarWatts * sunHoursDaily;
         const netDailyLoadWh = dailyWattHoursWithMargin - dailySolarGenerationWh;
 
@@ -315,9 +315,9 @@ export default function SolarBattery() {
           <Alert className="max-w-2xl mx-auto border-blue-500/30 bg-blue-500/10">
             <Info className="h-4 w-4 text-blue-400" />
             <AlertDescription className="text-blue-200 text-sm">
-              <strong>System Goal:</strong> Battery provides <strong>48 hours</strong> of backup power without any solar input. 
-              Combined with solar panels receiving {sunHours || 'your specified'} hours of daily sun, the system aims for 
-              <strong> exactly 7 days</strong> of continuous off-grid operation.
+              <strong>System Goal:</strong> Battery provides <strong>48 hours</strong> of backup power without any solar input.
+              Combined with solar panels receiving {sunHours || 'your specified'} hours of daily sun, the system aims for
+              <strong> exactly 5 days</strong> of continuous off-grid operation.
             </AlertDescription>
           </Alert>
         </div>
@@ -355,12 +355,14 @@ export default function SolarBattery() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="safety" className="text-gray-200">Safety Margin</Label>
+                <Label htmlFor="safety" className="text-gray-200">Buffer Capacity</Label>
                 <Select value={safetyMargin} onValueChange={setSafetyMargin}>
                   <SelectTrigger id="safety" className="w-full mt-2 rounded-xl bg-gray-900/80 border-cyan-500/30 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-cyan-500/30">
+                    <SelectItem value="10" className="text-white">10%</SelectItem>
+                    <SelectItem value="15" className="text-white">15%</SelectItem>
                     <SelectItem value="20" className="text-white">20%</SelectItem>
                     <SelectItem value="25" className="text-white">25%</SelectItem>
                     <SelectItem value="30" className="text-white">30%</SelectItem>
@@ -380,11 +382,11 @@ export default function SolarBattery() {
               </div>
             </div>
 
-            {/* Safety Margin Explanation */}
+            {/* Buffer Capacity Explanation */}
             <Alert className="border-orange-500/30 bg-orange-500/10">
               <Info className="h-4 w-4 text-orange-400" />
               <AlertDescription className="text-orange-200 text-sm">
-                <strong>Safety Margin:</strong> Adds extra capacity to account for inefficiencies, cloudy days, and unexpected usage. 
+                <strong>Buffer Capacity:</strong> Adds extra capacity to account for inefficiencies, cloudy days, and unexpected usage.
                 25% is standard for most vanlife setups. Increase to 30% for extreme climates or critical systems.
               </AlertDescription>
             </Alert>
@@ -470,12 +472,21 @@ export default function SolarBattery() {
         {/* System Recommendation */}
         {results ? (
           <div className="space-y-6 mb-8">
+            {/* Adjust Values Header */}
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-lg border border-cyan-500/30">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <span className="text-cyan-300 font-semibold text-sm uppercase tracking-wide">Adjust Values as Required</span>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="cyber-card border-green-500/40">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg text-white">
                     <Sun className="w-5 h-5 text-green-400" />
-                    Recommended Solar
+                    Solar
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -484,8 +495,8 @@ export default function SolarBattery() {
                       {(adjustedSystem?.solarWatts || 0) + "W"}
                     </div>
                     <p className="text-green-200 text-sm mb-4">
-                      Solar capacity to partially offset your daily {results.dailyWattHoursWithMargin.toFixed(0)}Wh usage, 
-                      extending your {adjustedSystem?.batteryOnlyDays || "2.0"}-day battery backup to exactly 7 days off-grid with {sunHours} hours of daily sun.
+                      Solar capacity to partially offset your daily {results.dailyWattHoursWithMargin.toFixed(0)}Wh usage,
+                      extending your {adjustedSystem?.batteryOnlyDays || "2.0"}-day battery backup to exactly 5 days off-grid with {sunHours} hours of daily sun.
                       {parseFloat(sunHours) === 0 && <span className="block text-orange-300 text-xs mt-1">(No sun hours entered, solar cannot replenish)</span>}
                     </p>
                   </div>
@@ -511,7 +522,7 @@ export default function SolarBattery() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg text-white">
                     <Battery className="w-5 h-5 text-blue-400" />
-                    Recommended Battery Bank
+                    Battery Bank
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -560,7 +571,7 @@ export default function SolarBattery() {
                         size="sm"
                         className="text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10"
                       >
-                        Reset to Recommended
+                        Reset Values
                       </Button>
                     )}
                   </div>
@@ -587,11 +598,11 @@ export default function SolarBattery() {
                       </AlertDescription>
                     </Alert>
                   )}
-                  {parseFloat(adjustedSystem.totalDays) < 7 && (
+                  {parseFloat(adjustedSystem.totalDays) < 5 && (
                     <Alert className="mt-4 border-yellow-500/30 bg-yellow-500/10">
                       <AlertTriangle className="h-4 w-4 text-yellow-400" />
                       <AlertDescription className="text-yellow-200 text-sm">
-                        <strong>Note:</strong> With current settings, total autonomy is less than the target 7 days. Consider increasing battery or solar capacity.
+                        <strong>Note:</strong> With current settings, total autonomy is less than the target 5 days. Consider increasing battery or solar capacity.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -620,7 +631,7 @@ export default function SolarBattery() {
                 <span className="font-semibold text-white">{results.dailyWattHours.toFixed(0)} Wh</span>
               </div>
               <div className="flex justify-between p-3 bg-gray-900/50 rounded-lg border border-cyan-500/20">
-                <span className="text-gray-200">Usage with {safetyMargin}% Safety Margin</span>
+                <span className="text-gray-200">Usage with {safetyMargin}% Buffer Capacity</span>
                 <span className="font-semibold text-white">{results.dailyWattHoursWithMargin.toFixed(0)} Wh</span>
               </div>
               <div className="flex justify-between p-3 bg-gray-900/50 rounded-lg border border-cyan-500/20">
@@ -641,7 +652,7 @@ export default function SolarBattery() {
               </div>
               <div className="flex justify-between p-3 bg-green-500/20 rounded-lg border border-green-500/40">
                 <span className="text-green-200 font-semibold">Combined System Duration</span>
-                <span className="font-bold text-green-300">{adjustedSystem ? `${adjustedSystem.totalDays}${parseFloat(adjustedSystem.totalDays) >= 30 ? "+" : ""}` : "7.0"} Days</span>
+                <span className="font-bold text-green-300">{adjustedSystem ? `${adjustedSystem.totalDays}${parseFloat(adjustedSystem.totalDays) >= 30 ? "+" : ""}` : "5.0"} Days</span>
               </div>
             </CardContent>
           </Card>
@@ -670,19 +681,25 @@ export default function SolarBattery() {
                   <h4 className="font-bold text-white mb-1">{data.name}</h4>
                   <div className="text-cyan-300 font-semibold mb-2">{(data.dod * 100).toFixed(0)}% Recommended DoD</div>
                   <p className="text-sm text-gray-300 mb-2">{data.description}</p>
-                  <p className="text-xs text-gray-400 italic">Source: {data.source}</p>
+                  <p className="text-xs text-gray-400 italic">Reference Material: {data.source}</p>
                 </div>
               ))}
             </div>
 
             <div className="pt-4 border-t border-cyan-500/30">
               <p className="text-sm text-gray-300 leading-relaxed mb-2">
-                <strong className="text-white">Example:</strong> If you need 200Ah of usable capacity (for 48 hours in this calculator):
+                <strong className="text-white">Simple Example:</strong> If 200Ah of actual power is needed to run appliances for 2 days,
+                batteries cannot be fully drained without damage. Therefore, a larger battery bank is required:
               </p>
-              <ul className="space-y-1 text-sm text-gray-300 ml-4">
-                <li>• <strong className="text-cyan-300">Lithium (80% DoD):</strong> 250Ah battery bank required (200Ah ÷ 0.80)</li>
-                <li>• <strong className="text-cyan-300">AGM/Lead Acid/Gel (50% DoD):</strong> 400Ah battery bank required (200Ah ÷ 0.50)</li>
+              <ul className="space-y-2 text-sm text-gray-300 ml-4">
+                <li>• <strong className="text-cyan-300">Lithium battery:</strong> 80% of capacity can be safely used.
+                To achieve 200Ah usable, a <strong>250Ah battery</strong> is required (using only 80% of total capacity)</li>
+                <li>• <strong className="text-cyan-300">AGM/Lead Acid/Gel battery:</strong> Only 50% of capacity can be safely used.
+                To achieve 200Ah usable, a <strong>400Ah battery</strong> is required (using only 50% of total capacity)</li>
               </ul>
+              <p className="text-xs text-gray-400 italic mt-2">
+                This is why lithium batteries are popular in vans - more usable power from a smaller, lighter battery.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -697,7 +714,7 @@ export default function SolarBattery() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm text-gray-300 space-y-2">
-              <p><strong className="text-white">Battery DoD Sources:</strong></p>
+              <p><strong className="text-white">Battery DoD References:</strong></p>
               <ul className="ml-4 space-y-1">
                 <li>• Lithium: Battle Born Batteries technical specs, Renogy installation guides, Victron Energy recommendations</li>
                 <li>• AGM: Victron Energy battery guidelines, Varta automotive specifications, REDARC installation manuals</li>
@@ -711,10 +728,13 @@ export default function SolarBattery() {
                 <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-orange-200 leading-relaxed">
                   <strong className="block mb-1">Important:</strong>
-                  This calculator provides estimates based on manufacturer recommendations current at time of publication. 
-                  Actual performance varies with temperature, age, charge/discharge rates, and usage patterns. 
-                  Always verify specifications with your specific battery and solar equipment manufacturers. 
-                  Consult a qualified solar installer for professional system design.
+                  <p className="mb-3">
+                    Battery DoD recommendations and solar calculations are based on manufacturer specifications current at the time of publication.
+                    Actual performance varies with temperature, age, charge/discharge rates, and usage patterns.
+                  </p>
+                  <p>
+                    This tool provides guidance estimates only. Values are compiled from various sources that may have changed since publication and should not be considered factual or definitive. Always verify specifications directly with your supplier and consult the manufacturer's current datasheets before installation. For safety-critical applications, consult a qualified professional.
+                  </p>
                 </div>
               </div>
             </div>
