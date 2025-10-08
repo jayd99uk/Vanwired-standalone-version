@@ -219,7 +219,6 @@ export default function CableSystem() {
                     </select>
                   </div>
                   <Alert className="mt-2 border-orange-500/30 bg-orange-500/10">
-                    <Info className="h-4 w-4 text-orange-400" />
                     <AlertDescription className="text-orange-200 text-xs">
                       <strong>Important:</strong> Enter the one-way distance only, not the total cable run. The calculator automatically accounts for both positive and negative cables.
                     </AlertDescription>
@@ -594,33 +593,19 @@ export default function CableSystem() {
             </CardContent>
           </Card>
 
-          {/* Disclaimer */}
+          {/* Safety Critical */}
           <Card className="cyber-card border-cyan-500/30 mt-6">
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2 text-white">
                 <AlertTriangle className="w-5 h-5 text-yellow-400" />
-                Disclaimer
+                Safety Critical
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-yellow-400 mt-1 flex-shrink-0" />
-                  <div className="text-yellow-200 text-sm leading-relaxed space-y-3">
-                    <p>
-                      This calculator provides guidance only and calculates results that meet both capacity and voltage drop requirements. It is the user's responsibility to ensure that cable sizing is appropriate and compatible with their specific devices and installation.
-                    </p>
-                    <p>
-                      This calculator uses voltage drop values from BS 7671:2018+A2:2022 (UK Wiring Regulations) and current ratings compiled from UK cable suppliers and manufacturers. Regulations and reference materials change regularly, so information within this tool may no longer be accurate.
-                    </p>
-                    <p>
-                      Multiple variables impact proper cable sizing including: installation method, ambient temperature, cable bundling, grouping, insulation type, thermal insulation, derating factors, device compatibility, cable route, and ventilation. Users must verify all variables for their specific installation and make their own informed decisions. Always refer to current regulations in your country to verify compliance and consult with a qualified electrician or electrical engineer for safety-critical installations.
-                    </p>
-                    <p className="font-semibold">
-                      The author assumes no liability for damages or injuries resulting from use of this tool.
-                    </p>
-                  </div>
-                </div>
+              <div className="p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
+                <p className="text-orange-200 text-sm leading-relaxed">
+                  Incorrect cable or fuse sizing can cause fires or equipment damage. These calculations are estimates only. Installation conditions, cable routing, ambient temperature, and local electrical codes significantly affect safe ratings. Always consult a qualified electrician and follow relevant standards (BS 7671, NEC, etc.).
+                </p>
               </div>
             </CardContent>
           </Card>

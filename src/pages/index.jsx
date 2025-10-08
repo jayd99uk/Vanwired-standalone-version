@@ -17,8 +17,9 @@ import CableSystem from "./CableSystem";
 import WattsTriangle from "./WattsTriangle";
 
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { App } from '@capacitor/app';
+import DisclaimerModal from '../components/DisclaimerModal';
 
 const PAGES = {
     
@@ -104,6 +105,25 @@ function PagesContent() {
 }
 
 export default function Pages() {
+    const [disclaimerAccepted, setDisclaimerAccepted] = useState(() => {
+        // Check if user has previously accepted the disclaimer
+        return localStorage.getItem('vanwired_disclaimer_accepted') === 'true';
+    });
+
+    const handleAccept = () => {
+        localStorage.setItem('vanwired_disclaimer_accepted', 'true');
+        setDisclaimerAccepted(true);
+    };
+
+    const handleDecline = () => {
+        // Exit the app on Capacitor platforms
+        App.exitApp();
+    };
+
+    if (!disclaimerAccepted) {
+        return <DisclaimerModal onAccept={handleAccept} onDecline={handleDecline} />;
+    }
+
     return (
         <Router>
             <PagesContent />

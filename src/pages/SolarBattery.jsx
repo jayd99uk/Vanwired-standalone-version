@@ -313,7 +313,6 @@ export default function SolarBattery() {
           
           {/* Goal Explanation */}
           <Alert className="max-w-2xl mx-auto border-blue-500/30 bg-blue-500/10">
-            <Info className="h-4 w-4 text-blue-400" />
             <AlertDescription className="text-blue-200 text-sm">
               <strong>System Goal:</strong> Battery provides <strong>48 hours</strong> of backup power without any solar input.
               Combined with solar panels receiving {sunHours || 'your specified'} hours of daily sun, the system aims for
@@ -384,7 +383,6 @@ export default function SolarBattery() {
 
             {/* Buffer Capacity Explanation */}
             <Alert className="border-orange-500/30 bg-orange-500/10">
-              <Info className="h-4 w-4 text-orange-400" />
               <AlertDescription className="text-orange-200 text-sm">
                 <strong>Buffer Capacity:</strong> Adds extra capacity to account for inefficiencies, cloudy days, and unexpected usage.
                 25% is standard for most vanlife setups. Increase to 30% for extreme climates or critical systems.
@@ -727,13 +725,9 @@ export default function SolarBattery() {
               <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
                 <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-orange-200 leading-relaxed">
-                  <strong className="block mb-1">Important:</strong>
-                  <p className="mb-3">
-                    Battery DoD recommendations and solar calculations are based on manufacturer specifications current at the time of publication.
-                    Actual performance varies with temperature, age, charge/discharge rates, and usage patterns.
-                  </p>
+                  <strong className="block mb-1">⚠️ Estimates Only</strong>
                   <p>
-                    This tool provides guidance estimates only. Values are compiled from various sources that may have changed since publication and should not be considered factual or definitive. Always verify specifications directly with your supplier and consult the manufacturer's current datasheets before installation. For safety-critical applications, consult a qualified professional.
+                    Results are based on ideal conditions and user inputs. Actual performance varies with weather, panel efficiency degradation, battery age, temperature, and usage patterns. These are planning estimates, not guarantees. Consult solar professionals for system design verification.
                   </p>
                 </div>
               </div>

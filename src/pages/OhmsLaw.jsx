@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Zap, Calculator, Info } from "lucide-react";
+import { Zap, Calculator, Info, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function OhmsLaw() {
@@ -254,6 +254,21 @@ export default function OhmsLaw() {
               <div className="text-center p-4 bg-orange-500/10 rounded-xl border border-orange-400/30">
                 <div className="text-2xl font-bold text-orange-300 mb-2">R = V / I</div>
                 <div className="text-sm text-orange-200">Resistance = Voltage / Current</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Disclaimer */}
+        <Card className="cyber-card border-orange-500/30 mt-6">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
+              <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-orange-200 leading-relaxed">
+                <strong className="block mb-1">⚠️ Educational Tool Only</strong>
+                <p>
+                  Calculations are theoretical estimates. Real-world results vary based on wire resistance, connections, temperature, and component tolerances. Always verify calculations independently and consult a qualified electrician for safety-critical applications.
+                </p>
               </div>
             </div>
           </CardContent>

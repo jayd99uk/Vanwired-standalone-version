@@ -108,7 +108,6 @@ export default function CableConverter() {
 
         {/* Important Notice */}
         <Alert className="mb-6 cyber-card border-orange-500/30">
-          <AlertTriangle className="h-4 w-4 text-orange-400" />
           <AlertDescription className="text-orange-200">
             <strong>Note:</strong> AWG measures diameter, mm² measures cross-sectional area. The mm² values shown here are standard metric cable sizes (nearest equivalent to AWG).
           </AlertDescription>
@@ -252,13 +251,9 @@ export default function CableConverter() {
               <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
                 <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-orange-200 leading-relaxed">
-                  <strong className="block mb-1">Important:</strong>
-                  <p className="mb-3">
-                    AWG and mm² are different measurement systems. AWG measures wire diameter while mm² measures cross-sectional area.
-                    The mm² values shown are standard metric cable sizes (nearest equivalent).
-                  </p>
+                  <strong className="block mb-1">⚠️ Reference Guide Only</strong>
                   <p>
-                    This tool provides guidance estimates only. Values are compiled from various sources that may have changed since publication and should not be considered factual or definitive. Always verify cable specifications directly with your supplier and consult the manufacturer's current datasheets before installation. For safety-critical applications, consult a qualified professional.
+                    AWG and mm² measurements use different systems. Values shown are standard equivalents and approximations. Current ratings vary by installation method, ambient temperature, and cable quality. Always verify specifications with your cable supplier's current documentation and consult relevant electrical codes (BS 7671 in UK, NEC in US) before installation.
                   </p>
                 </div>
               </div>

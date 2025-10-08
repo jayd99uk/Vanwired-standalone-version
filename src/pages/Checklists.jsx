@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckSquare, Zap, Home, Droplets, Palette, Plus, Clock, Trash2, Car, Wrench, X } from "lucide-react";
+import { CheckSquare, Zap, Home, Droplets, Palette, Plus, Clock, Trash2, Car, Wrench, X, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
 const defaultCategoryConfig = {
@@ -503,6 +504,16 @@ export default function Checklists() {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* Disclaimer */}
+      <div className="max-w-full px-6 mt-6">
+        <Alert className="cyber-card border-cyan-500/30">
+          <Info className="h-4 w-4 text-cyan-400" />
+          <AlertDescription className="text-cyan-200 text-sm leading-relaxed">
+            <strong>ℹ️ Planning Tool Only</strong> - This checklist is a general guide for campervan conversions. Your specific build may require additional tasks or different approaches. Regulations, codes, safety requirements, and best practices vary by location and vehicle type. Always research thoroughly and consult professionals for structural, electrical, plumbing, and gas installations.
+          </AlertDescription>
+        </Alert>
       </div>
     </div>
   );
