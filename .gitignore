@@ -2,3 +2,10 @@ node_modules/
 dist/
 .DS_Store
 *.log
+
+# Build outputs
+builds/
+android/app/build/
+android/.gradle/
+*.apk
+*.aab

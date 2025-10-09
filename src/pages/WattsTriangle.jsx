@@ -48,16 +48,41 @@ export default function WattsTriangle() {
   const getVanlifeExample = () => {
     const V = parseFloat(voltage) || parseFloat(results.voltage);
     const P = parseFloat(power) || parseFloat(results.power);
-    
+
     if (V && P) {
-      if (V === 12 && P >= 100 && P <= 200) {
-        return "Perfect for a 12V refrigerator or inverter";
-      } else if (V === 12 && P >= 20 && P <= 60) {
-        return "Typical for LED lighting or fans";
-      } else if (V === 12 && P >= 300 && P <= 1000) {
-        return "High-power devices like microwaves via inverter";
-      } else if (V === 24 && P >= 200) {
-        return "Common in larger 24V systems";
+      // 12V system examples
+      if (V >= 11.5 && V <= 14.5) {
+        if (P >= 3 && P < 15) {
+          return "LED lighting circuits typically draw 3-10W per light, with puck lights consuming around 3-6W and LED strips using 4-10W per meter.";
+        } else if (P >= 15 && P < 50) {
+          return "Common in ventilation fans and water pumps, which typically draw 12-40W on medium speed settings.";
+        } else if (P >= 50 && P < 100) {
+          return "Compressor refrigerators cycle at approximately 40-60W when the compressor is actively running, though consumption varies with ambient temperature.";
+        } else if (P >= 100 && P < 300) {
+          return "Multiple low-power appliances running simultaneously, or devices like laptops and chargers, typically fall within this range.";
+        } else if (P >= 300 && P < 800) {
+          return "Electric mini ovens and similar cooking appliances commonly draw 600-800W during operation.";
+        } else if (P >= 800 && P < 1500) {
+          return "Induction cooktops typically operate at 600-900W for most cooking tasks, reaching 1300-1500W at maximum settings for boiling water. Coffee machines also commonly draw around 1300W.";
+        } else if (P >= 1500) {
+          return "High-power cooking appliances and induction cooktops at maximum output commonly pull 1500-1800W, requiring substantial battery capacity and inverter sizing.";
+        }
+      }
+
+      // 24V system examples
+      if (V >= 23 && V <= 29) {
+        if (P >= 3 && P < 50) {
+          return "Low-wattage circuits such as LED lighting and small electronics are common in 24V systems, offering improved efficiency over 12V at the same power levels.";
+        } else if (P >= 50 && P < 200) {
+          return "Ventilation fans, refrigerators, and water pumps in 24V configurations draw lower current than 12V equivalents at the same wattage, reducing cable losses.";
+        } else if (P >= 200) {
+          return "24V systems are commonly used in larger installations where battery banks exceed 400Ah, providing better efficiency for high-power loads and reducing current draw by half compared to 12V.";
+        }
+      }
+
+      // Other voltages (e.g., 48V, AC, etc.)
+      if (V > 29 || (V >= 100 && V <= 240)) {
+        return "Higher voltage systems (48V or AC) are used in larger installations or when running appliances through inverters, where reduced current flow minimizes cable losses.";
       }
     }
     return null;
@@ -172,9 +197,9 @@ export default function WattsTriangle() {
                   )}
 
                   {getVanlifeExample() && (
-                    <Alert className="border-yellow-400/30 bg-yellow-500/10">
-                      <Info className="h-4 w-4 text-yellow-400" />
-                      <AlertDescription className="text-yellow-200">
+                    <Alert className="border-blue-400/30 bg-blue-500/10">
+                      <Info className="h-4 w-4 text-blue-400" />
+                      <AlertDescription className="text-blue-200">
                         <strong>Vanlife Context:</strong> {getVanlifeExample()}
                       </AlertDescription>
                     </Alert>
