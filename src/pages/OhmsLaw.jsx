@@ -265,7 +265,7 @@ export default function OhmsLaw() {
             <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
               <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-orange-200 leading-relaxed">
-                <strong className="block mb-1">⚠️ Educational Tool Only</strong>
+                <strong className="block mb-1">Educational Tool Only</strong>
                 <p>
                   Calculations are theoretical estimates. Real-world results vary based on wire resistance, connections, temperature, and component tolerances. Always verify calculations independently and consult a qualified electrician for safety-critical applications.
                 </p>

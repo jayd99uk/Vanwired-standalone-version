@@ -725,7 +725,7 @@ export default function SolarBattery() {
               <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
                 <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-orange-200 leading-relaxed">
-                  <strong className="block mb-1">⚠️ Estimates Only</strong>
+                  <strong className="block mb-1">Estimates Only</strong>
                   <p>
                     Results are based on ideal conditions and user inputs. Actual performance varies with weather, panel efficiency degradation, battery age, temperature, and usage patterns. These are planning estimates, not guarantees. Consult solar professionals for system design verification.
                   </p>

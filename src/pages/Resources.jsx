@@ -102,16 +102,28 @@ const resourceCategories = [
         specialty: "Electrical testing tools"
       },
       {
-        name: "Klein Tools",
-        description: "Electrician tools and safety equipment",
-        url: "https://www.kleintools.com",
-        specialty: "Professional electrician tools"
+        name: "Screwfix",
+        description: "UK trade supplier of tools, electrical accessories, and installation equipment",
+        url: "https://www.screwfix.com",
+        specialty: "Trade tools & electrical"
       },
       {
-        name: "Ancor Marine",
-        description: "Marine grade wire, connectors, and electrical accessories",
-        url: "https://www.ancorproducts.com",
-        specialty: "Marine wire & connectors"
+        name: "Toolstation",
+        description: "UK supplier of professional tools and electrical installation products",
+        url: "https://www.toolstation.com",
+        specialty: "Professional trade tools"
+      },
+      {
+        name: "RS Components",
+        description: "UK industrial supplier of electrical, electronic and mechanical components",
+        url: "https://uk.rs-online.com",
+        specialty: "Industrial components"
+      },
+      {
+        name: "CPC Farnell",
+        description: "UK distributor of electrical and electronic products for professionals",
+        url: "https://cpc.farnell.com",
+        specialty: "Electronic components"
       }
     ]
   },
@@ -129,7 +141,7 @@ const resourceCategories = [
       {
         name: "Greg Virgo YouTube",
         description: "UK-based vanlife builder sharing detailed build guides and electrical tutorials",
-        url: "https://www.youtube.com/@GregVirgo",
+        url: "https://www.youtube.com/@GregVirgoe",
         specialty: "UK vanlife builds"
       },
       {
@@ -137,79 +149,6 @@ const resourceCategories = [
         description: "Budget vanlife tips and electrical system guides",
         url: "https://cheaprvliving.com",
         specialty: "Budget vanlife builds"
-      },
-      {
-        name: "Solar-Electric.com",
-        description: "Comprehensive guides on solar electric systems",
-        url: "https://www.solar-electric.com",
-        specialty: "Solar system design"
-      },
-      {
-        name: "NEC Code Book",
-        description: "National Electrical Code for proper electrical installation",
-        url: "https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=70",
-        specialty: "Electrical codes & safety"
-      }
-    ]
-  },
-  {
-    title: "Community & Forums",
-    icon: Users,
-    color: "from-indigo-500 to-blue-600",
-    resources: [
-      {
-        name: "UK Campsite Forum",
-        description: "UK's largest camping and caravanning community forum",
-        url: "https://www.ukcampsite.co.uk/chatter",
-        specialty: "UK camping community"
-      },
-      {
-        name: "Motorhome Fun",
-        description: "Active UK motorhome and campervan forum with technical advice",
-        url: "https://www.motorhomefun.co.uk/forum",
-        specialty: "UK motorhome forum"
-      },
-      {
-        name: "VW T4 Forum",
-        description: "Dedicated community for VW T4, T5, and T6 van conversions",
-        url: "https://www.t4forum.co.uk",
-        specialty: "VW van conversions"
-      },
-      {
-        name: "Vanlife UK - Facebook Group",
-        description: "Large Facebook community for UK-based vanlifers sharing tips and builds",
-        url: "https://www.facebook.com/groups/vanlifeuk",
-        specialty: "UK vanlife community"
-      },
-      {
-        name: "Self Build Motorhomes & Campervans - Facebook",
-        description: "UK Facebook group focused on DIY campervan conversions",
-        url: "https://www.facebook.com/groups/selfbuildmotorhomes",
-        specialty: "DIY conversion support"
-      },
-      {
-        name: "Cheap RV Living Forum",
-        description: "Active community of budget-conscious van lifers",
-        url: "https://cheaprvliving.com/forums",
-        specialty: "Budget builds & tips"
-      },
-      {
-        name: "Reddit - r/vandwellers",
-        description: "Large community sharing builds, tips, and experiences",
-        url: "https://reddit.com/r/vandwellers",
-        specialty: "General vanlife community"
-      },
-      {
-        name: "Skoolies.net",
-        description: "School bus and large vehicle conversion community",
-        url: "https://www.skoolies.net",
-        specialty: "Large vehicle conversions"
-      },
-      {
-        name: "DIY Solar Forums",
-        description: "Technical discussions on solar power systems",
-        url: "https://diysolarforum.com",
-        specialty: "Solar technical support"
       }
     ]
   }

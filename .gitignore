@@ -9,3 +9,7 @@ android/app/build/
 android/.gradle/
 *.apk
 *.aab
+
+# Android signing
+*.jks
+*.keystore

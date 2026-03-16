@@ -40,7 +40,7 @@ export default function CableSystem() {
   const [systemVoltage, setSystemVoltage] = useState("12");
   const [cableLength, setCableLength] = useState("");
   const [lengthUnit, setLengthUnit] = useState("meters");
-  const [safetyFactor, setSafetyFactor] = useState("125");
+  const [maxVoltageDropPercent, setMaxVoltageDropPercent] = useState("3");
   const [results, setResults] = useState(null);
 
   useEffect(() => {
@@ -48,7 +48,6 @@ export default function CableSystem() {
       const watts = parseFloat(deviceWatts);
       const voltage = parseFloat(systemVoltage);
       const length = parseFloat(cableLength);
-      const safety = parseFloat(safetyFactor) / 100;
 
       if (isNaN(watts) || isNaN(voltage) || isNaN(length) || watts <= 0 || length <= 0) {
         setResults(null);
@@ -59,8 +58,9 @@ export default function CableSystem() {
       const lengthInMeters = lengthUnit === "feet" ? length / 3.28084 : length;
 
       const current = watts / voltage;
-      const maxVoltageDrop = voltage * 0.03; // 3% max
-      const minFuseRating = current * safety; // Fuse must handle 125% of load
+      const maxVDropPercent = parseFloat(maxVoltageDropPercent);
+      const maxVoltageDrop = voltage * (maxVDropPercent / 100);
+      const requiredCableCapacity = current * 1.25; // Cable must handle 125% of continuous load
 
       // Calculate for all wire sizes, ordered by mm² (smallest to largest)
       const wireAnalysis = wireOrderByMm2.map(awg => {
@@ -70,23 +70,26 @@ export default function CableSystem() {
         const voltageDrop = (data.voltageDrop * current * lengthInMeters) / 1000;
         const voltageDropPercent = (voltageDrop / voltage) * 100;
         const voltageAtLoad = voltage - voltageDrop;
-        
-        const canHandleCurrent = data.capacity >= current;
+
+        const canHandleCurrent = data.capacity >= requiredCableCapacity;
         const acceptableVoltageDrop = voltageDrop <= maxVoltageDrop;
-        
-        // Maximum fuse for this cable (80% rule)
-        const maxFuseForWire = data.capacity * 0.8;
-        
-        // Find suitable fuse: must be >= minFuseRating AND <= maxFuseForWire
+
+        // Maximum fuse for this cable (should not exceed cable capacity)
+        const maxFuseForWire = data.capacity;
+
+        // Minimum fuse rating to handle inrush currents (125% of actual load)
+        const minFuseForInrush = current * 1.25;
+
+        // Find suitable fuse: must be >= minFuseForInrush AND <= maxFuseForWire
         let recommendedFuse = null;
         for (const fuseSize of standardFuseSizes) {
-          if (fuseSize >= minFuseRating && fuseSize <= maxFuseForWire) {
+          if (fuseSize >= minFuseForInrush && fuseSize <= maxFuseForWire) {
             recommendedFuse = fuseSize;
             break;
           }
         }
-        
-        // Wire is suitable if it can handle current, has acceptable voltage drop, and has a valid fuse
+
+        // Wire is suitable if it can handle current with safety margin, has acceptable voltage drop, and has a valid fuse
         const isSuitable = canHandleCurrent && acceptableVoltageDrop && recommendedFuse !== null;
         
         return {
@@ -99,7 +102,7 @@ export default function CableSystem() {
           acceptableVoltageDrop,
           isSuitable,
           recommendedFuse: recommendedFuse || "N/A",
-          minFuseNeeded: minFuseRating.toFixed(1),
+          minFuseNeeded: minFuseForInrush.toFixed(1),
           maxFuseAllowed: maxFuseForWire.toFixed(1),
           status: getWireStatus(voltageDropPercent, canHandleCurrent, acceptableVoltageDrop)
         };
@@ -110,10 +113,11 @@ export default function CableSystem() {
 
       setResults({
         current: current.toFixed(1),
-        minFuseRating: minFuseRating.toFixed(1),
+        requiredCableCapacity: requiredCableCapacity.toFixed(1),
         wireAnalysis,
         recommendedWire,
         maxVoltageDrop: maxVoltageDrop.toFixed(2),
+        maxVoltageDropPercent: maxVDropPercent,
         lengthInMeters: lengthInMeters.toFixed(1),
         lengthDisplay: length,
         lengthUnit: lengthUnit
@@ -121,7 +125,7 @@ export default function CableSystem() {
     };
 
     calculateSystem();
-  }, [deviceWatts, systemVoltage, cableLength, lengthUnit, safetyFactor]);
+  }, [deviceWatts, systemVoltage, cableLength, lengthUnit, maxVoltageDropPercent]);
 
   const getWireStatus = (voltageDropPercent, canHandleCurrent, acceptableVoltageDrop) => {
     if (!canHandleCurrent) return { level: "danger", message: "Insufficient current capacity" };
@@ -226,15 +230,18 @@ export default function CableSystem() {
                 </div>
 
                 <div>
-                  <Label htmlFor="safety" className="text-gray-200">Safety Factor</Label>
+                  <Label htmlFor="vdrop" className="text-gray-200">Maximum Voltage Drop</Label>
                   <select
-                    id="safety"
-                    value={safetyFactor}
-                    onChange={(e) => setSafetyFactor(e.target.value)}
+                    id="vdrop"
+                    value={maxVoltageDropPercent}
+                    onChange={(e) => setMaxVoltageDropPercent(e.target.value)}
                     className="w-full mt-2 p-3 border rounded-xl bg-gray-900/80 border-cyan-500/30 text-white"
                   >
-                    <option value="125">125% (Standard NEC)</option>
-                    <option value="150">150% (Motors)</option>
+                    <option value="3">3% (Default - Industry Standard)</option>
+                    <option value="3.5">3.5%</option>
+                    <option value="4">4%</option>
+                    <option value="4.5">4.5%</option>
+                    <option value="5">5% (Maximum)</option>
                   </select>
                 </div>
               </CardContent>
@@ -255,9 +262,9 @@ export default function CableSystem() {
                       <CheckCircle className="h-4 w-4 text-green-400" />
                       <AlertDescription className="text-green-200 text-xs md:text-sm">
                         Your device draws <strong>{results.current}A</strong>.
-                        Calculated wire option keeps voltage drop ≤ 3% and allows proper fuse protection.
+                        Calculated wire option is the smallest cable that meets capacity (125% of load), voltage drop (≤{results.maxVoltageDropPercent}%), and fuse protection requirements.
                         <span className="block mt-2 text-xs">
-                          Note: Smaller cables may be rated to sufficiently carry the current, but do not meet the voltage drop requirement of less than 3%.
+                          Note: Smaller cables may be rated to carry the current, but may not meet the 125% capacity requirement, voltage drop threshold, or support the required fuse rating.
                           See the table below showing cable sizes, rated capacity, and voltage drop to make an informed choice.
                         </span>
                       </AlertDescription>
@@ -317,8 +324,8 @@ export default function CableSystem() {
               <CardTitle className="text-lg md:text-xl text-white">3. Cable Size Comparison</CardTitle>
               {results && (
                 <p className="text-xs md:text-sm text-gray-300">
-                  Showing voltage drop for {results.current}A over {results.lengthDisplay}{results.lengthUnit === "meters" ? "m" : "ft"} 
-                  {results.lengthUnit === "feet" && ` (${results.lengthInMeters}m)`} at {systemVoltage}V (sorted by mm² size)
+                  Showing voltage drop for {results.current}A over {results.lengthDisplay}{results.lengthUnit === "meters" ? "m" : "ft"}
+                  {results.lengthUnit === "feet" && ` (${results.lengthInMeters}m)`} at {systemVoltage}V with {results.maxVoltageDropPercent}% max threshold (sorted by mm² size)
                 </p>
               )}
             </CardHeader>
@@ -338,7 +345,7 @@ export default function CableSystem() {
                       <tbody>
                         {results.wireAnalysis.map((wire) => {
                           const isRecommended = results.recommendedWire && wire.awg === results.recommendedWire.awg;
-                          const isExcessiveDrop = parseFloat(wire.voltageDropPercent) > 3;
+                          const isExcessiveDrop = parseFloat(wire.voltageDropPercent) > results.maxVoltageDropPercent;
                           const capacityColorClass = getCapacityColor(wire.capacity, parseFloat(results.current));
                           const rowBg = isRecommended ? "bg-cyan-500/10" : "bg-transparent";
                           
@@ -394,11 +401,11 @@ export default function CableSystem() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-white rounded border border-gray-300"></div>
-                            <span className="text-gray-200">White = ≤3% (Acceptable)</span>
+                            <span className="text-gray-200">White = Within threshold</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-red-400 rounded border border-red-500"></div>
-                            <span className="text-gray-200">Red = &gt;3% (Too high)</span>
+                            <span className="text-gray-200">Red = Exceeds threshold</span>
                           </div>
                         </div>
                       </div>
@@ -420,30 +427,31 @@ export default function CableSystem() {
                           <strong>Load:</strong> Device draws {results.current}A continuously
                         </p>
                         <p>
-                          <strong>Fuse Requirements:</strong>
+                          <strong>Cable Requirements:</strong>
                         </p>
                         <ul className="ml-6 space-y-1 list-disc text-xs">
-                          <li>Must be rated for at least 125% of load = {results.minFuseRating}A minimum</li>
-                          <li>Must be less than 80% of cable's rated current to protect the cable</li>
+                          <li>Cable must handle 125% of continuous load: {results.current}A × 1.25 = {results.requiredCableCapacity}A</li>
+                          <li>Voltage drop must be ≤ {results.maxVoltageDropPercent}% of system voltage</li>
                         </ul>
                         <p>
                           <strong>Cable Option:</strong> {results.recommendedWire.awg} AWG ({results.recommendedWire.mm2} mm²)
                         </p>
                         <ul className="ml-6 space-y-1 list-disc text-xs">
-                          <li>Rated capacity: {results.recommendedWire.capacity}A (meets 125% requirement)</li>
-                          <li>Maximum fuse allowed: {results.recommendedWire.maxFuseAllowed}A (80% of capacity)</li>
+                          <li>Rated capacity: {results.recommendedWire.capacity}A (meets {results.requiredCableCapacity}A requirement)</li>
+                          <li>Maximum fuse allowed: {results.recommendedWire.maxFuseAllowed}A (matches cable capacity)</li>
                         </ul>
                         <p>
                           <strong>Fuse Selected:</strong> {results.recommendedWire.recommendedFuse}A
                         </p>
                         <ul className="ml-6 space-y-1 list-disc text-xs">
-                          <li>Next standard automotive fuse size that meets both requirements</li>
+                          <li>Rated at 125% of load (≥{results.recommendedWire.minFuseNeeded}A) to handle inrush currents</li>
+                          <li>Stays within cable capacity (≤{results.recommendedWire.maxFuseAllowed}A) to protect cable</li>
                         </ul>
                         <p>
                           <strong>Voltage Drop:</strong> {results.recommendedWire.voltageDropPercent}% at {results.lengthDisplay}{results.lengthUnit === "meters" ? "m" : "ft"}
                         </p>
                         <ul className="ml-6 space-y-1 list-disc text-xs">
-                          <li>Within the 3% commonly recommended in the automotive industry</li>
+                          <li>Within the {results.maxVoltageDropPercent}% threshold you selected</li>
                         </ul>
                       </div>
                     </div>
@@ -472,17 +480,18 @@ export default function CableSystem() {
                   <h3 className="text-lg font-bold text-blue-300 mb-3">1. Cable Sizing</h3>
                   <div className="space-y-2 text-sm text-blue-200">
                     <p>
-                      <strong>Current Capacity:</strong> Cables must be rated to handle at least 125% of the continuous current draw (150% for motor loads). This provides a safety margin for sustained operation and prevents cable overheating.
+                      <strong>Current Capacity:</strong> Cables are selected to handle at least 125% of the continuous current draw. This provides a margin for sustained operation and helps to reduce heat build-up when operating near listed cable thresholds. The calculator automatically applies this 125% requirement to all cable selections.
                     </p>
                     <p>
-                      <strong>Voltage Drop:</strong> It is commonly recommended in the automotive industry to keep voltage drop on circuits less than 3% of system voltage. On low voltage circuits (12V/24V), this often requires cables to be much larger than expected based on current capacity alone.
+                      <strong>Voltage Drop:</strong> The default maximum is 3%, commonly recommended in the automotive industry. On low voltage circuits (12V/24V), voltage drop often requires cables to be much larger than expected based on current capacity alone. You can adjust the maximum voltage drop threshold using the dropdown above.
                     </p>
                     <p className="text-xs text-blue-300 italic mt-2">
-                      • For 12V systems: Maximum 0.36V drop (0.36V = 3% of 12V)<br/>
-                      • For 24V systems: Maximum 0.72V drop (0.72V = 3% of 24V)
+                      • For 12V at 3%: Maximum 0.36V drop<br/>
+                      • For 24V at 3%: Maximum 0.72V drop<br/>
+                      • Higher thresholds (4-5%) allow smaller cables but reduce efficiency
                     </p>
                     <p className="text-xs text-orange-200 mt-3 p-2 bg-orange-500/10 rounded border border-orange-500/30">
-                      <strong>Note:</strong> In some instances, meeting the 3% voltage drop requirement would require cables so large they are not compatible with some popular devices on the market. Use this calculator as a guide - it calculates results that meet both capacity and voltage drop requirements, but cable sizing compatibility is at the user's discretion.
+                      <strong>Note:</strong> In some instances, meeting the 3% voltage drop requirement would require cables so large they are not compatible with some popular devices on the market. You can adjust the voltage drop threshold above to see alternative options, but be aware that higher voltage drops reduce system efficiency.
                     </p>
                   </div>
                 </div>
@@ -491,17 +500,17 @@ export default function CableSystem() {
                   <h3 className="text-lg font-bold text-green-300 mb-3">2. Fuse Sizing</h3>
                   <div className="space-y-2 text-sm text-green-200">
                     <p>
-                      <strong>Dual Requirements:</strong> Fuses must protect both the cable and allow the device to operate properly:
+                      <strong>Dual Requirements:</strong> Fuses must protect both the cable and handle inrush currents:
                     </p>
                     <ul className="ml-6 space-y-1 list-disc">
-                      <li>Must be rated for at least 125% of the load current (prevents nuisance tripping)</li>
-                      <li>Must be no more than 80% of the cable's rated capacity (protects cable from overcurrent damage)</li>
+                      <li>Must be rated at least 125% of the load current (handles inrush currents and prevents nuisance tripping)</li>
+                      <li>Must not exceed the cable's rated capacity (protects cable from overcurrent damage)</li>
                     </ul>
                     <p>
                       <strong>Selection:</strong> Choose the next standard automotive fuse size that satisfies both requirements above.
                     </p>
                     <p className="text-xs text-green-300 italic mt-2">
-                      Example: For a 40A load on a 60A cable - Fuse must be ≥50A (125% of load) and ≤48A (80% of cable). No standard fuse fits, so a larger cable is required.
+                      Example: For a 150A load on a 235A cable - Fuse must be ≥187.5A (125% of 150A for inrush) and ≤235A (cable capacity). A 200A fuse would work.
                     </p>
                   </div>
                 </div>
@@ -509,14 +518,15 @@ export default function CableSystem() {
                 <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-500/30">
                   <h3 className="text-lg font-bold text-purple-300 mb-3">3. Practical Example</h3>
                   <div className="space-y-2 text-sm text-purple-200">
-                    <p>For a 12V device drawing 80A continuous over 5 meters:</p>
+                    <p>For a 12V device drawing 80A continuous over 5 meters with 3% voltage drop limit:</p>
                     <ul className="ml-6 space-y-1">
-                      <li><strong>Load with margin:</strong> 80A × 1.25 = 100A minimum fuse requirement</li>
-                      <li><strong>Cable requirement:</strong> To use a 100A fuse, cable capacity must be ≥ 100A ÷ 0.80 = 125A</li>
-                      <li><strong>Cable selected:</strong> 1 AWG (130A capacity, meets 125A requirement)</li>
-                      <li><strong>Maximum fuse for 1 AWG:</strong> 130A × 0.80 = 104A</li>
-                      <li><strong>Fuse selected:</strong> 100A (meets load requirement of ≥100A, within cable protection limit of ≤104A)</li>
-                      <li><strong>Voltage drop check:</strong> 2.48% at 5 meters - within 3% limit ✓</li>
+                      <li><strong>Load current:</strong> 80A continuous</li>
+                      <li><strong>Required cable capacity:</strong> 80A × 1.25 = 100A (125% safety margin)</li>
+                      <li><strong>Minimum fuse rating:</strong> 80A × 1.25 = 100A (to handle inrush currents)</li>
+                      <li><strong>Cable selected:</strong> 4 AWG (110A capacity, meets 100A requirement and supports 100A fuse)</li>
+                      <li><strong>Maximum fuse for 4 AWG:</strong> 110A (matches cable capacity)</li>
+                      <li><strong>Fuse selected:</strong> 100A (meets 125% requirement of ≥100A, within cable capacity limit of ≤110A)</li>
+                      <li><strong>Voltage drop check:</strong> 0.70V (0.9%) at 5 meters - within 3% limit ✓</li>
                     </ul>
                   </div>
                 </div>
@@ -569,6 +579,7 @@ export default function CableSystem() {
                     <li>• <strong>BS 7671 Section 433:</strong> Protection against overload current - fuses must be rated at or below conductor capacity</li>
                     <li>• <strong>NEC 240.4(D):</strong> Overcurrent protection for small conductors</li>
                     <li>• <strong>Blue Sea Systems:</strong> Circuit protection sizing guidelines for marine and RV applications</li>
+                    <li>• <strong>125% Rule:</strong> Fuses rated at 125% of continuous load to handle inrush currents and prevent nuisance tripping</li>
                   </ul>
                 </div>
 
