@@ -53,6 +53,7 @@ npm run dev
 |---------|-------------|------|
 | 1.0     | 1           | (uploaded from Ubuntu - internal testing) |
 | 1.1     | 2           | builds/v1.1-versionCode2/vanwired-v1.1-release.aab |
+| 1.2     | 3           | builds/v1.2-versionCode3/vanwired-v1.2-release.aab |
 
 ## Keystore
 
