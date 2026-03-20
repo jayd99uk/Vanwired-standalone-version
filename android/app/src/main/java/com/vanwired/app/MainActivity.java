@@ -1,4 +1,4 @@
-package com.example.vanwired;
+package com.vanwired.app;
 
 import com.getcapacitor.BridgeActivity;
 
